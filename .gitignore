@@ -1,0 +1,142 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# Dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# Testing
+/coverage
+*.lcov
+.nyc_output
+
+# Next.js
+/.next/
+/out/
+
+# Production
+/build
+/dist
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Environment variables
+.env*
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Cache directories
+.cache
+.parcel-cache
+.eslintcache
+.stylelintcache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# IDEs and editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Archive files
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# Security files
+*.pem
+*.key
+*.cert
+*.crt
+*.p12
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Vercel
+.vercel
+
+# Turbo
+.turbo
+
+# Supabase
+.branches
+.temp
+
+# Prisma (if you add it later)
+prisma/migrations/dev.db*
+
+# Local development
+config/local.js
+config/local.json
+
+# Package manager files (uncomment the one you DON'T use)
+# package-lock.json  # if using yarn or pnpm
+# yarn.lock          # if using npm or pnpm  
+# pnpm-lock.yaml     # if using npm or yarn
+
+# Generated documentation
+docs/build/
+
+# Storybook build outputs
+storybook-static
+
+# Cypress
+cypress/downloads/
+cypress/screenshots/
+cypress/videos/
+
+# Jest
+coverage/
+jest-coverage/
+
+# ESLint
+.eslintcache
