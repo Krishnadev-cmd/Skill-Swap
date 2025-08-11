@@ -1,14 +1,52 @@
-import { createClient } from '@/utils/supabase/server'
+'use client'
+
+import { useState, useEffect } from 'react'
 import { signOut } from '@/app/login/action'
 import Image from 'next/image'
+
+interface User {
+  id: string
+  email: string
+  user_metadata?: {
+    full_name?: string
+    avatar_url?: string
+  }
+}
 
 interface AppLayoutProps {
   children: React.ReactNode
 }
 
-export default async function AppLayout({ children }: AppLayoutProps) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+export default function AppLayout({ children }: AppLayoutProps) {
+  const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    // Fetch user data on client side
+    const fetchUser = async () => {
+      try {
+        const response = await fetch('/api/user')
+        if (response.ok) {
+          const userData = await response.json()
+          setUser(userData)
+        }
+      } catch (error) {
+        console.error('Error fetching user:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchUser()
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    )
+  }
 
   if (!user) {
     // If no user, just return children without nav
@@ -41,7 +79,7 @@ export default async function AppLayout({ children }: AppLayoutProps) {
               <a href="/browse" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
                 Browse Skills
               </a>
-              <a href="/my-skills" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+              <a href="/my_skills" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
                 My Skills
               </a>
               <a href="/messages" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
