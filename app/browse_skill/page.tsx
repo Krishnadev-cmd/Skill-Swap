@@ -29,6 +29,12 @@ interface Skill {
   description?: string
   created_at: string
   user_id: string
+  user?: {
+    id: string
+    email: string
+    full_name: string
+    avatar_url?: string
+  }
 }
 
 interface Pagination {
@@ -68,6 +74,7 @@ export default function BrowseSkillsPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [pagination, setPagination] = useState<Pagination | null>(null)
   const [showFilters, setShowFilters] = useState(false)
+  const [failedImages, setFailedImages] = useState<Set<string>>(new Set())
 
   // Debounce search term to avoid excessive API calls
   const debouncedSearchTerm = useDebounce(searchTerm, 500)
@@ -88,6 +95,12 @@ export default function BrowseSkillsPage() {
       if (response.ok) {
         const data = await response.json()
         console.log('Skills data received:', data)
+        // Debug avatar URLs
+        data.skills.forEach((skill: Skill) => {
+          if (skill.user?.avatar_url) {
+            console.log(`Avatar URL for ${skill.user.full_name}:`, skill.user.avatar_url)
+          }
+        })
         setSkills(data.skills)
         setPagination(data.pagination)
       } else {
@@ -122,6 +135,10 @@ export default function BrowseSkillsPage() {
     setSelectedCategory('All Categories')
     setSelectedLevel('All Levels')
     setCurrentPage(1)
+  }
+
+  const handleImageError = (skillId: string) => {
+    setFailedImages(prev => new Set(prev).add(skillId))
   }
 
   const getInitials = (name: string) => {
@@ -294,12 +311,25 @@ export default function BrowseSkillsPage() {
                   {/* User Info */}
                   <div className="flex items-center justify-between pt-4 border-t border-gray-100">
                     <div className="flex items-center space-x-2">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white text-xs font-medium">
-                        <UserIcon className="h-4 w-4" />
-                      </div>
+                      {skill.user?.avatar_url && !failedImages.has(skill.id) ? (
+                        <img
+                          src={skill.user.avatar_url}
+                          alt={skill.user.full_name || 'User avatar'}
+                          className="w-8 h-8 rounded-full object-cover"
+                          onError={() => handleImageError(skill.id)}
+                          onLoad={() => console.log('Image loaded successfully for:', skill.user?.full_name)}
+                        />
+                      ) : (
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white text-xs font-medium">
+                          {skill.user?.full_name ? 
+                            getInitials(skill.user.full_name) : 
+                            <UserIcon className="h-4 w-4" />
+                          }
+                        </div>
+                      )}
                       <div>
                         <p className="text-xs font-medium text-gray-900">
-                          User
+                          {skill.user?.full_name || 'User'}
                         </p>
                         <p className="text-xs text-gray-500">
                           {new Date(skill.created_at).toLocaleDateString()}

@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
     const otherUsersSkills = allSkills?.filter(skill => skill.user_id !== user.id) || []
     console.log('Skills from other users (should be visible):', otherUsersSkills)
 
-    // Build the query - simplified without profiles join for now
+    // Build the query - use explicit join syntax instead of automatic relationship
     let query = supabase
       .from('skills')
       .select(`
@@ -98,6 +98,45 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to fetch skills' }, { status: 500 })
     }
 
+    // Transform the data and try to fetch user profiles, with fallback
+    const transformedSkills = await Promise.all(
+      (skills || []).map(async (skill) => {
+        let userInfo = {
+          id: skill.user_id,
+          email: 'unknown@example.com',
+          full_name: `User ${skill.user_id.slice(0, 8)}`,
+          avatar_url: null
+        }
+
+        try {
+          // Try to fetch profile from profiles table
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('id, email, full_name, avatar_url')
+            .eq('id', skill.user_id)
+            .single()
+
+          if (profile && !profileError) {
+            userInfo = {
+              id: skill.user_id,
+              email: profile.email || 'unknown@example.com',
+              full_name: profile.full_name || profile.email?.split('@')[0] || `User ${skill.user_id.slice(0, 8)}`,
+              avatar_url: profile.avatar_url
+            }
+          }
+        } catch (error) {
+          console.log('Profile fetch failed, using fallback for user:', skill.user_id)
+        }
+
+        return {
+          ...skill,
+          user: userInfo
+        }
+      })
+    )
+
+    console.log('Transformed skills with user data:', transformedSkills)
+
     // Get total count for pagination
     let countQuery = supabase
       .from('skills')
@@ -117,7 +156,7 @@ export async function GET(request: NextRequest) {
     const { count } = await countQuery
 
     return NextResponse.json({
-      skills: skills || [],
+      skills: transformedSkills || [],
       pagination: {
         currentPage: page,
         totalPages: Math.ceil((count || 0) / limit),
