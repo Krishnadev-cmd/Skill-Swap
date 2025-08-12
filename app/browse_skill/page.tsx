@@ -328,9 +328,12 @@ export default function BrowseSkillsPage() {
                         </div>
                       )}
                       <div>
-                        <p className="text-xs font-medium text-gray-900">
+                        <a 
+                          href={`/other_profile/${skill.user?.id}`}
+                          className="text-xs font-medium text-gray-900 hover:text-blue-600 transition-colors duration-200"
+                        >
                           {skill.user?.full_name || 'User'}
-                        </p>
+                        </a>
                         <p className="text-xs text-gray-500">
                           {new Date(skill.created_at).toLocaleDateString()}
                         </p>
