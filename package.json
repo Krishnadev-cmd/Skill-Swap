@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "node socket-server.js",
     "build": "next build",
-    "start": "next start",
+    "start": "node socket-server.js",
     "lint": "next lint"
   },
   "dependencies": {
@@ -13,12 +13,16 @@
     "@heroicons/react": "^2.2.0",
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.54.0",
+    "@types/socket.io": "^3.0.1",
+    "@types/socket.io-client": "^1.4.36",
     "dotenv": "^17.2.1",
     "jsonwebtoken": "^9.0.2",
     "next": "15.4.6",
     "next-auth": "^5.0.0-beta.29",
     "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react-dom": "19.1.0",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

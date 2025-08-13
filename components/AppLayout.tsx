@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { signOut } from '@/app/login/action'
 import Image from 'next/image'
+import ChatSidebar from './ChatSidebar'
 
 interface User {
   id: string
@@ -177,6 +178,9 @@ export default function AppLayout({ children }: AppLayoutProps) {
       <main className="flex-1">
         {children}
       </main>
+
+      {/* Chat Sidebar */}
+      <ChatSidebar currentUserId={user?.id || null} />
     </div>
   )
 }

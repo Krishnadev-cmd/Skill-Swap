@@ -14,6 +14,24 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const type = searchParams.get('type') || 'all' // 'sent', 'received', 'accepted', 'all'
     const status = searchParams.get('status') || 'all' // 'pending', 'accepted', 'rejected', 'all'
+    const connectionId = searchParams.get('id') // For fetching a single connection
+
+    // If requesting a single connection
+    if (connectionId) {
+      const { data: connection, error } = await supabase
+        .from('connection_details')
+        .select('*')
+        .eq('id', connectionId)
+        .or(`requester_id.eq.${user.id},receiver_id.eq.${user.id}`)
+        .single()
+
+      if (error) {
+        console.error('Error fetching connection:', error)
+        return NextResponse.json({ error: 'Connection not found' }, { status: 404 })
+      }
+
+      return NextResponse.json({ connection })
+    }
 
     let query = supabase
       .from('connection_details')
