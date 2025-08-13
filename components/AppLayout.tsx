@@ -82,8 +82,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
               <a href="/my_skills" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
                 My Skills
               </a>
-              <a href="/messages" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
-                Messages
+              <a href="/connections" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+                Connections
               </a>
             </div>
 

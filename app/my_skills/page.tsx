@@ -161,7 +161,7 @@ export default function MySkillsPage() {
                       type="text"
                       value={formData.skill_name}
                       onChange={(e) => setFormData({ ...formData, skill_name: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
                       placeholder="e.g., JavaScript, Guitar, Photography"
                       required
                     />
@@ -174,7 +174,7 @@ export default function MySkillsPage() {
                     <select
                       value={formData.skill_level}
                       onChange={(e) => setFormData({ ...formData, skill_level: e.target.value as any })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
                     >
                       {skillLevels.map((level) => (
                         <option key={level.value} value={level.value}>
@@ -191,7 +191,7 @@ export default function MySkillsPage() {
                     <select
                       value={formData.category}
                       onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
                     >
                       <option value="">Select category</option>
                       {skillCategories.map((category) => (
@@ -210,7 +210,7 @@ export default function MySkillsPage() {
                   <textarea
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
                     rows={3}
                     placeholder="Describe your experience or what you can teach..."
                   />

@@ -1,5 +1,6 @@
 import AppLayout from '@/components/AppLayout'
 import UserAvatar from '@/components/UserAvatar'
+import ConnectButton from '@/components/ConnectButton'
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { UserIcon } from '@heroicons/react/24/outline'
@@ -170,9 +171,12 @@ export default async function OtherProfilePage({ params }: PageProps) {
                             <span className="text-xs text-gray-500">
                               Added {new Date(skill.created_at).toLocaleDateString()}
                             </span>
-                            <button className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors duration-200">
-                              Connect
-                            </button>
+                            <ConnectButton
+                              skillId={skill.id}
+                              userId={id}
+                              skillName={skill.name}
+                              userName={userFullName || userEmail || 'User'}
+                            />
                           </div>
                         </div>
                       ))}

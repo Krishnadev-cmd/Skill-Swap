@@ -75,9 +75,52 @@ export default function BrowseSkillsPage() {
   const [pagination, setPagination] = useState<Pagination | null>(null)
   const [showFilters, setShowFilters] = useState(false)
   const [failedImages, setFailedImages] = useState<Set<string>>(new Set())
+  const [connectingSkills, setConnectingSkills] = useState<Set<string>>(new Set())
+  const [showConnectModal, setShowConnectModal] = useState(false)
+  const [selectedSkill, setSelectedSkill] = useState<Skill | null>(null)
+  const [existingConnections, setExistingConnections] = useState<Set<string>>(new Set())
+  const [connectedUsers, setConnectedUsers] = useState<Set<string>>(new Set())
+  const [pendingConnections, setPendingConnections] = useState<Set<string>>(new Set())
+  const [pendingUsers, setPendingUsers] = useState<Set<string>>(new Set())
 
   // Debounce search term to avoid excessive API calls
   const debouncedSearchTerm = useDebounce(searchTerm, 500)
+
+  const fetchExistingConnections = async () => {
+    try {
+      const response = await fetch('/api/connections?type=all')
+      if (response.ok) {
+        const data = await response.json()
+        
+        // Track accepted connections
+        const acceptedSkillIds = new Set<string>()
+        const acceptedUserIds = new Set<string>()
+        
+        // Track pending connections  
+        const pendingSkillIds = new Set<string>()
+        const pendingUserIds = new Set<string>()
+        
+        data.connections.forEach((conn: any) => {
+          if (conn.status === 'accepted') {
+            if (conn.skill_id) acceptedSkillIds.add(conn.skill_id)
+            if (conn.requester_id) acceptedUserIds.add(conn.requester_id)
+            if (conn.receiver_id) acceptedUserIds.add(conn.receiver_id)
+          } else if (conn.status === 'pending') {
+            if (conn.skill_id) pendingSkillIds.add(conn.skill_id)
+            if (conn.requester_id) pendingUserIds.add(conn.requester_id)
+            if (conn.receiver_id) pendingUserIds.add(conn.receiver_id)
+          }
+        })
+        
+        setExistingConnections(acceptedSkillIds)
+        setConnectedUsers(acceptedUserIds)
+        setPendingConnections(pendingSkillIds)
+        setPendingUsers(pendingUserIds)
+      }
+    } catch (error) {
+      console.error('Error fetching existing connections:', error)
+    }
+  }
 
   const fetchSkills = async () => {
     setLoading(true)
@@ -124,6 +167,10 @@ export default function BrowseSkillsPage() {
     fetchSkills()
   }, [debouncedSearchTerm, selectedCategory, selectedLevel, currentPage])
 
+  useEffect(() => {
+    fetchExistingConnections()
+  }, [])
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     setCurrentPage(1)
@@ -139,6 +186,69 @@ export default function BrowseSkillsPage() {
 
   const handleImageError = (skillId: string) => {
     setFailedImages(prev => new Set(prev).add(skillId))
+  }
+
+  const handleConnect = async (skill: Skill) => {
+    setSelectedSkill(skill)
+    setShowConnectModal(true)
+  }
+
+  const sendConnectionRequest = async (message: string = '') => {
+    if (!selectedSkill) return
+
+    setConnectingSkills(prev => new Set(prev).add(selectedSkill.id))
+    
+    try {
+      const response = await fetch('/api/connections', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          receiver_id: selectedSkill.user?.id,
+          skill_id: selectedSkill.id,
+          message: message.trim() || null
+        })
+      })
+
+      if (response.ok) {
+        alert(`Connection request sent to ${selectedSkill.user?.full_name || 'user'}!`)
+        setShowConnectModal(false)
+        setSelectedSkill(null)
+        // Refresh existing connections to update button states
+        await fetchExistingConnections()
+      } else {
+        const errorData = await response.json()
+        alert(`Failed to send connection request: ${errorData.error}`)
+      }
+    } catch (error) {
+      console.error('Error sending connection request:', error)
+      alert('Network error. Please try again.')
+    } finally {
+      setConnectingSkills(prev => {
+        const newSet = new Set(prev)
+        newSet.delete(selectedSkill.id)
+        return newSet
+      })
+    }
+  }
+
+  const getConnectionButtonState = (skill: Skill) => {
+    const isConnecting = connectingSkills.has(skill.id)
+    const hasAcceptedSkillConnection = existingConnections.has(skill.id)
+    const hasAcceptedUserConnection = connectedUsers.has(skill.user?.id || '')
+    const hasPendingSkillConnection = pendingConnections.has(skill.id)
+    const hasPendingUserConnection = pendingUsers.has(skill.user?.id || '')
+    
+    if (isConnecting) {
+      return { text: 'Connecting...', disabled: true, className: 'bg-blue-50 text-blue-600' }
+    } else if (hasAcceptedSkillConnection || hasAcceptedUserConnection) {
+      return { text: 'Connected', disabled: true, className: 'bg-green-50 text-green-600' }
+    } else if (hasPendingSkillConnection || hasPendingUserConnection) {
+      return { text: 'Pending', disabled: true, className: 'bg-yellow-50 text-yellow-600' }
+    } else {
+      return { text: 'Connect', disabled: false, className: 'bg-blue-50 text-blue-600 hover:bg-blue-100' }
+    }
   }
 
   const getInitials = (name: string) => {
@@ -180,7 +290,7 @@ export default function BrowseSkillsPage() {
                   placeholder="Search skills, descriptions..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-500"
                 />
                 {searchTerm !== debouncedSearchTerm && (
                   <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
@@ -221,7 +331,7 @@ export default function BrowseSkillsPage() {
                       setSelectedCategory(e.target.value)
                       setCurrentPage(1)
                     }}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
                   >
                     {skillCategories.map((category) => (
                       <option key={category} value={category}>{category}</option>
@@ -237,7 +347,7 @@ export default function BrowseSkillsPage() {
                       setSelectedLevel(e.target.value)
                       setCurrentPage(1)
                     }}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
                   >
                     {skillLevels.map((level) => (
                       <option key={level} value={level}>{level}</option>
@@ -340,12 +450,75 @@ export default function BrowseSkillsPage() {
                       </div>
                     </div>
                     
-                    <button className="px-3 py-1 text-xs bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors duration-200">
-                      Connect
+                    <button 
+                      onClick={() => handleConnect(skill)}
+                      disabled={getConnectionButtonState(skill).disabled}
+                      className={`px-3 py-1 text-xs rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${getConnectionButtonState(skill).className}`}
+                    >
+                      {getConnectionButtonState(skill).text}
                     </button>
                   </div>
                 </div>
               ))}
+            </div>
+          )}
+
+          {/* Connection Modal */}
+          {showConnectModal && selectedSkill && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4">
+                <h3 className="text-xl font-bold text-gray-900 mb-4">
+                  Connect with {selectedSkill.user?.full_name || 'User'}
+                </h3>
+                
+                <div className="mb-6">
+                  <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-4 border border-blue-100">
+                    <h4 className="font-semibold text-gray-900 mb-2">{selectedSkill.name}</h4>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600 bg-gray-100 px-2 py-1 rounded-lg">
+                        {selectedSkill.category}
+                      </span>
+                      <span className={`px-2 py-1 text-xs font-medium rounded-full border ${getLevelColor(selectedSkill.level)}`}>
+                        {selectedSkill.level}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Message (Optional)
+                  </label>
+                  <textarea
+                    id="connection-message"
+                    placeholder="Hi! I'm interested in learning about this skill. Would you like to connect?"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-gray-900 placeholder-gray-500"
+                    rows={3}
+                  />
+                </div>
+
+                <div className="flex space-x-3">
+                  <button
+                    onClick={() => {
+                      setShowConnectModal(false)
+                      setSelectedSkill(null)
+                    }}
+                    className="flex-1 px-4 py-2 border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => {
+                      const messageInput = document.getElementById('connection-message') as HTMLTextAreaElement
+                      sendConnectionRequest(messageInput?.value || '')
+                    }}
+                    disabled={connectingSkills.has(selectedSkill.id)}
+                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {connectingSkills.has(selectedSkill.id) ? 'Sending...' : 'Send Request'}
+                  </button>
+                </div>
+              </div>
             </div>
           )}
 
