@@ -1,7 +1,7 @@
 'use client'
 
 import { createContext, useContext, useEffect, useState } from 'react'
-import { io } from 'socket.io-client'
+import io from 'socket.io-client'
 
 interface SocketContextType {
   socket: any | null
@@ -31,10 +31,28 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
       transports: ['websocket']
     })
 
+    // Get user information and identify to socket server
+    const identifyUser = async () => {
+      try {
+        const response = await fetch('/api/user')
+        if (response.ok) {
+          const user = await response.json()
+          // Send user identification to socket server
+          socketInstance.emit('identify-user', user.id)
+          console.log(`User identified on socket: ${user.id}`)
+        }
+      } catch (error) {
+        console.error('Failed to identify user to socket server:', error)
+      }
+    }
+
     socketInstance.on('connect', () => {
       console.log('Connected to server')
       setIsConnected(true)
       setSocket(socketInstance)
+      
+      // Identify user once connected
+      identifyUser()
     })
 
     socketInstance.on('disconnect', () => {

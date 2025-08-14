@@ -218,9 +218,11 @@ export default function ChatPage() {
     if (!connectionInfo || !currentUserId) return null
     
     const otherUser = currentUserId === connectionInfo.requester_id ? {
+      id: connectionInfo.receiver_id,
       name: connectionInfo.receiver_name,
       avatar: connectionInfo.receiver_avatar
     } : {
+      id: connectionInfo.requester_id,
       name: connectionInfo.requester_name,
       avatar: connectionInfo.requester_avatar
     }
@@ -326,8 +328,8 @@ export default function ChatPage() {
                   
                   if (otherUser && connectionId) {
                     const callerName = currentUserId === connectionInfo?.requester_id ? connectionInfo?.requester_name : connectionInfo?.receiver_name || 'You'
-                    console.log('Calling initiateCall with:', { connectionId, callerName, avatar: otherUser.avatar })
-                    initiateCall(connectionId, callerName, otherUser.avatar)
+                    console.log('Calling initiateCall with:', { connectionId, callerName, avatar: otherUser.avatar, targetUserId: otherUser.id })
+                    initiateCall(connectionId, callerName, otherUser.avatar, otherUser.id)
                   } else {
                     console.error('Missing required data for call:', { otherUser, connectionId })
                   }

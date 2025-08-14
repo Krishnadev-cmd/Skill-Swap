@@ -10,7 +10,7 @@ interface VideoCallContextType {
   incomingCall: IncomingCall | null
   localStream: MediaStream | null
   remoteStream: MediaStream | null
-  initiateCall: (connectionId: string, callerName: string, callerAvatar?: string) => void
+  initiateCall: (connectionId: string, callerName: string, callerAvatar?: string, targetUserId?: string) => void
   acceptCall: () => void
   rejectCall: () => void
   endCall: () => void
@@ -23,6 +23,7 @@ interface VideoCallContextType {
 
 interface IncomingCall {
   callerId: string
+  callerUserId?: string
   callerName: string
   callerAvatar?: string
   connectionId: string
@@ -99,10 +100,11 @@ export function VideoCallProvider({ children }: { children: React.ReactNode }) {
   }
 
   // Initiate call
-  const initiateCall = async (connectionId: string, callerName: string, callerAvatar?: string) => {
+  const initiateCall = async (connectionId: string, callerName: string, callerAvatar?: string, targetUserId?: string) => {
     try {
-      console.log('Initiating call:', { connectionId, callerName, callerAvatar })
+      console.log('Initiating call:', { connectionId, callerName, callerAvatar, targetUserId })
       setCallStatus('calling')
+      setIsInCall(true)  // Set this immediately when starting call
       currentConnectionId.current = connectionId
       
       const stream = await initializeMediaStream()
@@ -113,7 +115,8 @@ export function VideoCallProvider({ children }: { children: React.ReactNode }) {
         socket.emit('initiate-call', {
           connectionId,
           callerName,
-          callerAvatar
+          callerAvatar,
+          targetUserId
         })
       } else {
         console.error('Socket not available')
@@ -121,6 +124,7 @@ export function VideoCallProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       console.error('Error initiating call:', error)
       setCallStatus('failed')
+      setIsInCall(false)  // Reset on error
     }
   }
 
@@ -161,7 +165,7 @@ export function VideoCallProvider({ children }: { children: React.ReactNode }) {
       currentConnectionId.current = incomingCall.connectionId
 
       socket.emit('accept-call', {
-        callerId: incomingCall.callerId,
+        callerUserId: incomingCall.callerUserId,
         connectionId: incomingCall.connectionId
       })
 
@@ -177,7 +181,7 @@ export function VideoCallProvider({ children }: { children: React.ReactNode }) {
     if (!incomingCall || !socket) return
 
     socket.emit('reject-call', {
-      callerId: incomingCall.callerId,
+      callerUserId: incomingCall.callerUserId,
       connectionId: incomingCall.connectionId
     })
 
@@ -235,9 +239,11 @@ export function VideoCallProvider({ children }: { children: React.ReactNode }) {
 
     // Incoming call
     socket.on('incoming-call', (data: IncomingCall) => {
+      console.log('Incoming call received:', data)
       setIncomingCall(data)
       setIsReceivingCall(true)
       setCallStatus('incoming')
+      // Don't set isInCall here, wait for accept
     })
 
     // Call accepted
@@ -279,6 +285,7 @@ export function VideoCallProvider({ children }: { children: React.ReactNode }) {
 
     // Call rejected
     socket.on('call-rejected', () => {
+      console.log('Call was rejected')
       setCallStatus('rejected')
       setTimeout(() => {
         endCall()
@@ -287,6 +294,7 @@ export function VideoCallProvider({ children }: { children: React.ReactNode }) {
 
     // Call ended
     socket.on('call-ended', () => {
+      console.log('Call ended by other party')
       endCall()
     })
 
@@ -309,6 +317,18 @@ export function VideoCallProvider({ children }: { children: React.ReactNode }) {
       }
     })
 
+    // User disconnected during call
+    socket.on('user-disconnected', (data: { userId: string }) => {
+      if (isInCall && incomingCall?.callerUserId === data.userId) {
+        console.log('Call participant disconnected:', data.userId)
+        setCallStatus('disconnected')
+        // Auto-end call after a brief delay to show the disconnect message
+        setTimeout(() => {
+          endCall()
+        }, 3000)
+      }
+    })
+
     return () => {
       socket.off('incoming-call')
       socket.off('call-accepted')
@@ -317,6 +337,7 @@ export function VideoCallProvider({ children }: { children: React.ReactNode }) {
       socket.off('webrtc-offer')
       socket.off('webrtc-answer')
       socket.off('webrtc-ice-candidate')
+      socket.off('user-disconnected')
     }
   }, [socket, localStream])
 

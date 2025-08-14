@@ -86,8 +86,11 @@ export default function VideoCallInterface() {
     }
   }
 
-  if (!isInCall) {
-    console.log('VideoCallInterface: Not in call, not rendering. isInCall:', isInCall, 'callStatus:', callStatus)
+  // Show interface if we're in a call OR if there's any call activity
+  const shouldShowInterface = isInCall || callStatus === 'calling' || callStatus === 'connecting' || callStatus === 'connected'
+
+  if (!shouldShowInterface) {
+    console.log('VideoCallInterface: Not showing interface. isInCall:', isInCall, 'callStatus:', callStatus)
     return null
   }
 
@@ -102,6 +105,13 @@ export default function VideoCallInterface() {
 
   return (
     <div className="fixed inset-0 bg-black z-50 flex flex-col">
+      {/* DEBUG PANEL - REMOVE LATER */}
+      <div className="bg-yellow-400 text-black p-2 text-sm">
+        DEBUG: isInCall={isInCall.toString()}, callStatus={callStatus}, 
+        localStream={!!localStream ? 'YES' : 'NO'}, 
+        remoteStream={!!remoteStream ? 'YES' : 'NO'}
+      </div>
+
       {/* Status Bar */}
       <div className="bg-gray-900 text-white p-4 flex justify-between items-center">
         <div className="flex items-center space-x-2">
@@ -110,18 +120,32 @@ export default function VideoCallInterface() {
             {callStatus === 'connected' ? 'Connected' : 'Connecting...'}
           </span>
         </div>
-        <button
-          onClick={toggleFullScreen}
-          className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-          </svg>
-        </button>
+        
+        <div className="flex items-center space-x-2">
+          {/* Emergency End Call Button - Always Visible */}
+          <button
+            onClick={endCall}
+            className="w-10 h-10 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center transition-colors shadow-lg"
+            title="End Call"
+          >
+            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+          
+          <button
+            onClick={toggleFullScreen}
+            className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+            </svg>
+          </button>
+        </div>
       </div>
 
       {/* Video Container */}
-      <div className="flex-1 relative">
+      <div className="flex-1 relative overflow-hidden">
         {/* Remote Video (Main) */}
         <video
           ref={remoteVideoRef}
@@ -182,9 +206,9 @@ export default function VideoCallInterface() {
         </div>
       </div>
 
-      {/* Controls */}
-      <div className="bg-gray-900 p-6">
-        <div className="flex justify-center space-x-6">
+      {/* Controls - Fixed at bottom */}
+      <div className="absolute bottom-0 left-0 right-0 bg-gray-900 bg-opacity-90 p-3">
+        <div className="flex justify-center space-x-4">
           {/* Mute Toggle */}
           <button
             onClick={toggleMute}
@@ -193,6 +217,7 @@ export default function VideoCallInterface() {
                 ? 'bg-red-500 hover:bg-red-600' 
                 : 'bg-gray-700 hover:bg-gray-600'
             }`}
+            title={isMuted ? "Unmute" : "Mute"}
           >
             {isMuted ? (
               <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -214,6 +239,7 @@ export default function VideoCallInterface() {
                 ? 'bg-red-500 hover:bg-red-600' 
                 : 'bg-gray-700 hover:bg-gray-600'
             }`}
+            title={isVideoOff ? "Turn Video On" : "Turn Video Off"}
           >
             {isVideoOff ? (
               <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -226,14 +252,14 @@ export default function VideoCallInterface() {
             )}
           </button>
 
-          {/* End Call */}
+          {/* End Call - Larger and more prominent */}
           <button
             onClick={endCall}
-            className="w-14 h-14 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center transition-colors duration-200"
+            className="w-16 h-16 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center transition-colors duration-200 shadow-lg border-2 border-white"
             title="End Call"
           >
-            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
