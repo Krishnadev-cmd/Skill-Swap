@@ -4,10 +4,12 @@ import { useState, useEffect, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import AppLayout from '@/components/AppLayout'
 import { useSocket } from '@/contexts/SocketContext'
+import { useVideoCall } from '@/contexts/VideoCallContext'
 import { 
   PaperAirplaneIcon, 
   UserIcon, 
-  ArrowLeftIcon 
+  ArrowLeftIcon,
+  VideoCameraIcon 
 } from '@heroicons/react/24/outline'
 
 interface Message {
@@ -35,6 +37,7 @@ export default function ChatPage() {
   const router = useRouter()
   const connectionId = params.connectionId as string
   const { socket, isConnected } = useSocket()
+  const { initiateCall } = useVideoCall()
   
   const [messages, setMessages] = useState<Message[]>([])
   const [newMessage, setNewMessage] = useState('')
@@ -311,6 +314,29 @@ export default function ChatPage() {
                   </span>
                 </div>
               </div>
+
+              {/* Video Call Button */}
+              <button
+                onClick={() => {
+                  console.log('Video call button clicked')
+                  console.log('otherUser:', otherUser)
+                  console.log('connectionId:', connectionId)
+                  console.log('currentUserId:', currentUserId)
+                  console.log('connectionInfo:', connectionInfo)
+                  
+                  if (otherUser && connectionId) {
+                    const callerName = currentUserId === connectionInfo?.requester_id ? connectionInfo?.requester_name : connectionInfo?.receiver_name || 'You'
+                    console.log('Calling initiateCall with:', { connectionId, callerName, avatar: otherUser.avatar })
+                    initiateCall(connectionId, callerName, otherUser.avatar)
+                  } else {
+                    console.error('Missing required data for call:', { otherUser, connectionId })
+                  }
+                }}
+                className="p-3 text-green-600 hover:text-green-700 hover:bg-green-50 transition-colors rounded-lg"
+                title="Start video call"
+              >
+                <VideoCameraIcon className="h-6 w-6" />
+              </button>
             </div>
           </div>
 

@@ -46,6 +46,61 @@ app.prepare().then(() => {
       socket.to(data.connectionId).emit('user-stop-typing', data)
     })
 
+    // Video Call Events
+    socket.on('initiate-call', (data) => {
+      console.log(`Call initiated by ${socket.id} to room: ${data.connectionId}`)
+      socket.to(data.connectionId).emit('incoming-call', {
+        callerId: socket.id,
+        callerName: data.callerName,
+        callerAvatar: data.callerAvatar,
+        connectionId: data.connectionId
+      })
+    })
+
+    socket.on('accept-call', (data) => {
+      console.log(`Call accepted by ${socket.id}`)
+      socket.to(data.callerId).emit('call-accepted', {
+        accepterId: socket.id,
+        connectionId: data.connectionId
+      })
+    })
+
+    socket.on('reject-call', (data) => {
+      console.log(`Call rejected by ${socket.id}`)
+      socket.to(data.callerId).emit('call-rejected', {
+        connectionId: data.connectionId
+      })
+    })
+
+    socket.on('end-call', (data) => {
+      console.log(`Call ended by ${socket.id}`)
+      socket.to(data.connectionId).emit('call-ended', {
+        connectionId: data.connectionId
+      })
+    })
+
+    // WebRTC Signaling Events
+    socket.on('webrtc-offer', (data) => {
+      socket.to(data.connectionId).emit('webrtc-offer', {
+        offer: data.offer,
+        callerId: socket.id
+      })
+    })
+
+    socket.on('webrtc-answer', (data) => {
+      socket.to(data.connectionId).emit('webrtc-answer', {
+        answer: data.answer,
+        answerId: socket.id
+      })
+    })
+
+    socket.on('webrtc-ice-candidate', (data) => {
+      socket.to(data.connectionId).emit('webrtc-ice-candidate', {
+        candidate: data.candidate,
+        senderId: socket.id
+      })
+    })
+
     // Handle disconnection
     socket.on('disconnect', () => {
       console.log('User disconnected:', socket.id)

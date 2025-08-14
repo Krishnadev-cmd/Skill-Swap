@@ -26,8 +26,9 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
   const [isConnected, setIsConnected] = useState(false)
 
   useEffect(() => {
-    const socketInstance = io('http://localhost:3000', {
+    const socketInstance = io('http://localhost:4000', {
       path: '/socket.io/',
+      transports: ['websocket']
     })
 
     socketInstance.on('connect', () => {

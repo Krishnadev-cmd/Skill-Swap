@@ -3,10 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "node socket-server.js",
+    "dev": "next dev",
     "build": "next build",
-    "start": "node socket-server.js",
-    "lint": "next lint"
+    "start": "next start",
+    "lint": "next lint",
+    "socket": "node socket-server.js"
   },
   "dependencies": {
     "@auth/supabase-adapter": "^1.10.0",
@@ -21,6 +22,7 @@
     "next-auth": "^5.0.0-beta.29",
     "react": "19.1.0",
     "react-dom": "19.1.0",
+    "simple-peer": "^9.11.1",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1"
   },
@@ -30,6 +32,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/simple-peer": "^9.11.8",
     "eslint": "^9",
     "eslint-config-next": "15.4.6",
     "tailwindcss": "^4",
