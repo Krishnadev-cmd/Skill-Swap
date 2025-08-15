@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { signOut } from '@/app/login/action'
 import Image from 'next/image'
+import Link from 'next/link'
 import ChatSidebar from './ChatSidebar'
 
 interface User {
@@ -74,18 +75,18 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
             {/* Navigation Links */}
             <div className="hidden md:flex items-center space-x-8">
-              <a href="/" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+              <Link href="/" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
                 Home
-              </a>
-              <a href="/browse_skill" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+              </Link>
+              <Link href="/browse_skill" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
                 Browse Skills
-              </a>
-              <a href="/my_skills" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+              </Link>
+              <Link href="/my_skills" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
                 My Skills
-              </a>
-              <a href="/connections" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+              </Link>
+              <Link href="/connections" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
                 Connections
-              </a>
+              </Link>
             </div>
 
             {/* User Profile Section */}
@@ -135,12 +136,12 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 {/* Dropdown Content */}
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                   <div className="py-1">
-                    <a href="/profile" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    <Link href="/profile" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                       <svg className="mr-3 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                       </svg>
                       Your Profile
-                    </a>
+                    </Link>
                     <div className="border-t border-gray-100"></div>
                     <form action={signOut}>
                       <button type="submit" className="flex items-center w-full px-4 py-2 text-sm text-red-700 hover:bg-red-50">

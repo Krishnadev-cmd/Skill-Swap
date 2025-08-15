@@ -327,7 +327,7 @@ export default function ConnectionsPage() {
                               {/* Message */}
                               {connection.message && (
                                 <p className="text-sm text-gray-600 mb-2 bg-gray-50 p-3 rounded-lg">
-                                  "{connection.message}"
+                                  &quot;{connection.message}&quot;
                                 </p>
                               )}
 

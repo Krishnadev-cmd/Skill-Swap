@@ -26,7 +26,10 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
   const [isConnected, setIsConnected] = useState(false)
 
   useEffect(() => {
-    const socketInstance = io('http://localhost:4000', {
+    // Use environment variable for socket URL, fallback to localhost for development
+    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:4000'
+    
+    const socketInstance = io(socketUrl, {
       path: '/socket.io/',
       transports: ['websocket']
     })

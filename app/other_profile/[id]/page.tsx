@@ -71,7 +71,7 @@ export default async function OtherProfilePage({ params }: PageProps) {
               <UserIcon className="h-12 w-12 text-gray-400" />
             </div>
             <h2 className="text-2xl font-bold text-gray-900 mb-2">User Not Found</h2>
-            <p className="text-gray-600">The user profile you're looking for doesn't exist.</p>
+            <p className="text-gray-600">The user profile you&apos;re looking for doesn&apos;t exist.</p>
           </div>
         </div>
       </AppLayout>
@@ -144,7 +144,7 @@ export default async function OtherProfilePage({ params }: PageProps) {
                         <UserIcon className="h-8 w-8 text-gray-400" />
                       </div>
                       <h3 className="text-lg font-medium text-gray-900 mb-2">No Skills Added</h3>
-                      <p className="text-gray-600">This user hasn't added any skills yet.</p>
+                      <p className="text-gray-600">This user hasn&apos;t added any skills yet.</p>
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -7,7 +7,7 @@ export default async function Home() {
   const { data: { user } } = await supabase.auth.getUser()
 
   // Fetch user stats if logged in
-  let userStats = {
+  const userStats = {
     skillsCount: 0,
     connectionsCount: 0
   }
