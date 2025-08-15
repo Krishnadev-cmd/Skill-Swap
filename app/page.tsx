@@ -6,6 +6,34 @@ export default async function Home() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
+  // Fetch user stats if logged in
+  let userStats = {
+    skillsCount: 0,
+    connectionsCount: 0
+  }
+
+  if (user) {
+    try {
+      // Fetch user's skills count
+      const { data: skills } = await supabase
+        .from('skills')
+        .select('id')
+        .eq('user_id', user.id)
+
+      // Fetch user's connections count (accepted connections only)
+      const { data: connections } = await supabase
+        .from('connections')
+        .select('id')
+        .or(`requester_id.eq.${user.id},receiver_id.eq.${user.id}`)
+        .eq('status', 'accepted')
+
+      userStats.skillsCount = skills?.length || 0
+      userStats.connectionsCount = connections?.length || 0
+    } catch (error) {
+      console.error('Error fetching user stats:', error)
+    }
+  }
+
   return (
     <AppLayout>
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
@@ -65,22 +93,14 @@ export default async function Home() {
               {/* Stats Section */}
               <div className="bg-white rounded-xl shadow-lg p-8 border border-gray-100">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">Your Skill Swap Journey</h2>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="text-center">
-                    <div className="text-3xl font-bold text-blue-600 mb-2">0</div>
-                    <div className="text-gray-600">Skills Shared</div>
+                    <div className="text-3xl font-bold text-green-600 mb-2">{userStats.skillsCount}</div>
+                    <div className="text-gray-600">Skills</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-3xl font-bold text-green-600 mb-2">0</div>
-                    <div className="text-gray-600">Skills Learned</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-purple-600 mb-2">0</div>
+                    <div className="text-3xl font-bold text-purple-600 mb-2">{userStats.connectionsCount}</div>
                     <div className="text-gray-600">Connections Made</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-orange-600 mb-2">0</div>
-                    <div className="text-gray-600">Skill Credits</div>
                   </div>
                 </div>
               </div>
