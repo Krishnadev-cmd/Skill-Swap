@@ -4,7 +4,12 @@ const { Server } = require('socket.io')
 const httpServer = createServer()
 const io = new Server(httpServer, {
   cors: {
-    origin: ["http://localhost:3001", "http://localhost:3000"],
+    origin: [
+      "http://localhost:3001", 
+      "http://localhost:3000",
+      "https://skill-swap-kdisop2003-gmailcoms-projects.vercel.app",
+      "https://skill-swap-clsjoblq5-kdisop2003-gmailcoms-projects.vercel.app"
+    ],
     methods: ["GET", "POST"]
   }
 })
