@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "socket": "node socket-server.js"
+    "socket": "node socket-server.js",
+    "socket-simple": "node socket-server-simple.js"
   },
   "dependencies": {
     "@auth/supabase-adapter": "^1.10.0",
