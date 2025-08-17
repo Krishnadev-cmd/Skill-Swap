@@ -1,7 +1,20 @@
 const { createServer } = require('http')
 const { Server } = require('socket.io')
 
-const httpServer = createServer()
+const httpServer = createServer((req, res) => {
+  // Handle basic HTTP requests for health checks
+  if (req.method === 'GET' && req.url === '/health') {
+    res.writeHead(200, { 'Content-Type': 'application/json' })
+    res.end(JSON.stringify({ status: 'ok', timestamp: new Date().toISOString() }))
+  } else if (req.method === 'GET' && req.url === '/') {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end('Socket.IO Server is running')
+  } else {
+    res.writeHead(404)
+    res.end('Not Found')
+  }
+})
+
 const io = new Server(httpServer, {
   cors: {
     origin: [
