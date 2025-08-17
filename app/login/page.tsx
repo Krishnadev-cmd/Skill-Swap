@@ -1,6 +1,55 @@
-import { signInWithGoogle } from './action'
+'use client'
+import { createClient } from '@/utils/supabase/client'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
 export default function LoginPage() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const [error, setError] = useState<string | null>(null)
+  
+  useEffect(() => {
+    const errorParam = searchParams.get('error')
+    if (errorParam) {
+      switch (errorParam) {
+        case 'pkce_failed':
+          setError('Authentication failed. Please try again.')
+          break
+        case 'auth_failed':
+          setError('Login failed. Please try again.')
+          break
+        case 'no_code':
+          setError('Authentication code missing. Please try again.')
+          break
+        default:
+          setError('An error occurred during login.')
+      }
+    }
+  }, [searchParams])
+  
+  const handleSignInWithGoogle = async () => {
+    try {
+      const supabase = createClient()
+      
+      // Clear any existing sessions first to avoid PKCE conflicts
+      await supabase.auth.signOut()
+      
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/api/auth/callback`,
+        },
+      })
+
+      if (error) {
+        console.error('Error signing in with Google:', error)
+        setError('Failed to initiate login. Please try again.')
+      }
+    } catch (error) {
+      console.error('Login error:', error)
+      setError('An unexpected error occurred.')
+    }
+  }
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
@@ -18,14 +67,21 @@ export default function LoginPage() {
         {/* Login Card */}
         <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
           <div className="space-y-6">
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                {error}
+              </div>
+            )}
+            
             <div className="text-center">
               <h3 className="text-xl font-semibold text-gray-900 mb-2">Sign in to your account</h3>
               <p className="text-sm text-gray-500">Connect with Google to get started</p>
             </div>
 
-            <form action={signInWithGoogle} className="space-y-4">
+            <div className="space-y-4">
               <button
-                type="submit"
+                onClick={handleSignInWithGoogle}
+                type="button"
                 className="group relative w-full flex justify-center items-center px-4 py-3 border border-gray-300 text-sm font-medium rounded-xl text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 ease-in-out shadow-sm hover:shadow-md"
               >
                 <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
@@ -36,7 +92,7 @@ export default function LoginPage() {
                 </svg>
                 Continue with Google
               </button>
-            </form>
+            </div>
 
             <div className="text-center">
               <p className="text-xs text-gray-500">
