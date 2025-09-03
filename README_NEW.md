@@ -1,0 +1,155 @@
+# 🔄 Skill Swap
+
+A modern platform for exchanging skills and knowledge within a community. Connect with like-minded individuals, share your expertise, and learn new skills through real-time interactions.
+
+## ✨ Features
+
+### 🎯 Core Functionality
+- **Skill Marketplace**: Browse and discover available skills from other users
+- **User Profiles**: Create detailed profiles showcasing your skills and interests
+- **Smart Matching**: Find the perfect skill exchange partners
+- **Secure Authentication**: Google OAuth integration for seamless login
+
+### 💬 Communication
+- **Real-time Chat**: Instant messaging with other users
+- **Video Calling**: Built-in video call functionality for face-to-face learning
+- **Connection Management**: Organize your skill exchange connections
+- **Typing Indicators**: See when others are typing in real-time
+
+### 🔐 Security & Performance
+- **Session Management**: Secure user authentication with Supabase
+- **Real-time Updates**: Live data synchronization across all clients
+- **Responsive Design**: Optimized for desktop and mobile devices
+- **Production Ready**: Deployed on Vercel with Socket.IO on Render
+
+## 🚀 Tech Stack
+
+### Frontend
+- **Next.js 15** - React framework with App Router
+- **TypeScript** - Type-safe development
+- **Tailwind CSS** - Modern styling and responsive design
+- **React Hooks** - State management and side effects
+
+### Backend & Database
+- **Supabase** - Backend-as-a-Service with PostgreSQL
+- **Socket.IO** - Real-time bidirectional communication
+- **Supabase Auth** - OAuth authentication and user management
+
+### Infrastructure
+- **Vercel** - Frontend deployment and hosting
+- **Render** - Socket.IO server hosting
+- **GitHub** - Version control and CI/CD
+
+## 🛠️ Installation & Setup
+
+### Prerequisites
+- Node.js 18+ 
+- npm or yarn
+- Supabase account
+- Google OAuth credentials
+
+### Local Development
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/Krishnadev-cmd/Skill-Swap.git
+   cd Skill-Swap
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Environment Setup**
+   Create a `.env.local` file with the following variables:
+   ```env
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+   SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+   NEXT_PUBLIC_SITE_URL=http://localhost:3000
+   NEXT_PUBLIC_SOCKET_URL=http://localhost:3001
+   ```
+
+4. **Database Setup**
+   Run the SQL scripts in Supabase:
+   ```bash
+   # Execute these files in your Supabase SQL editor
+   create_profiles_table.sql
+   create_messages_table.sql
+   create_connections_table.sql
+   supabase_skills_table.sql
+   fix_rls_policies.sql
+   ```
+
+5. **Start Development Servers**
+   ```bash
+   # Terminal 1 - Next.js app
+   npm run dev
+   
+   # Terminal 2 - Socket.IO server
+   node socket-server-simple.js
+   ```
+
+6. **Access the application**
+   - Frontend: http://localhost:3000
+   - Socket.IO: http://localhost:3001
+
+## 🌐 Live Demo
+
+**Production URL**: [https://skill-swap-kdisop2003-gmailcoms-projects.vercel.app](https://skill-swap-kdisop2003-gmailcoms-projects.vercel.app)
+
+## 📱 Key Pages
+
+- **Home** (`/`) - Landing page with platform statistics
+- **Login** (`/login`) - Google OAuth authentication
+- **Profile** (`/profile`) - User profile management
+- **My Skills** (`/my_skills`) - Manage your skill offerings
+- **Browse Skills** (`/browse_skill`) - Discover available skills
+- **Connections** (`/connections`) - Your skill exchange connections
+- **Chat** (`/chat/[id]`) - Real-time messaging and video calls
+
+## 🔧 API Endpoints
+
+- `GET /api/user` - Get current user information
+- `GET /api/my_skills` - Fetch user's skills
+- `GET /api/browse_skill` - Browse available skills
+- `GET/POST /api/connections` - Manage connections
+- `GET/POST /api/messages` - Chat messaging
+- `POST /api/auth/login` - Authentication
+- `POST /api/auth/logout` - Sign out
+
+## 🎮 Usage
+
+1. **Sign Up**: Use Google OAuth to create your account
+2. **Complete Profile**: Add your skills and interests
+3. **Browse Skills**: Explore what others are offering
+4. **Make Connections**: Connect with potential skill partners
+5. **Start Learning**: Use chat and video calls to exchange knowledge
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- **Supabase** for the excellent backend-as-a-service platform
+- **Vercel** for seamless deployment and hosting
+- **Socket.IO** for real-time communication capabilities
+- **Next.js** team for the amazing React framework
+
+## 📞 Support
+
+For support, email [your-email@example.com] or create an issue in this repository.
+
+---
+
+Built with ❤️ by [Krishnadev](https://github.com/Krishnadev-cmd)
